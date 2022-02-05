@@ -19,7 +19,7 @@
 #define SECRET_NUM -1234
 typedef enum { UNUSED_DEF_VAL } UNUSED_ENUM_TYPE;
 
-extern int gpu_index;
+int gpu_index;
 
 #ifdef GPU
 #include "opencl.h"

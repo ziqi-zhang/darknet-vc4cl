@@ -445,7 +445,7 @@ float train_network_datum_cgan(network *net, data d, data o, int i)
 
     assert(net->inputs == net->outputs);
     get_next_batch(p, batch, i*batch, net->output, 0);
-    opencl_push_array(net->output_gpu, net->output, lout.outputs*lout.batch);
+    // opencl_push_array(net->output, net->output, lout.outputs*lout.batch);
 
     backward_network(net);
 

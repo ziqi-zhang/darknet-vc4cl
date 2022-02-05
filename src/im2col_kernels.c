@@ -49,7 +49,7 @@ void im2col_gpu(cl_mem im, int offset,
 
     int zero = 0;
     printf("before opencl_kernel\n");
-    opencl_kernel(opencl_im2col_gpu_kernel[opencl_device_id_t], dimGrid, 24,
+    opencl_kernel(opencl_im2col_gpu_kernel[opencl_device_id_t], dimGrid, 12,
         &num_kernels, sizeof(cl_int),
         &im, sizeof(cl_mem),
         &height, sizeof(cl_int),

@@ -153,7 +153,7 @@ void smooth_layer(layer l, int size, float rate)
     dim2 dimN;
     dimN = opencl_gridsize((const int) n);
 
-    opencl_kernel(opencl_smooth_kernel[opencl_device_id_t], dimN, 16, &l.output_gpu.mem, sizeof(cl_mem), &n, sizeof(cl_int), &l.w, sizeof(cl_int), &l.h, sizeof(cl_int), &l.c, sizeof(cl_int), &size, sizeof(cl_int), &rate, sizeof(cl_float), &l.delta_gpu.mem, sizeof(cl_mem));
+    opencl_kernel(opencl_smooth_kernel[opencl_device_id_t], dimN, 12, &l.output_gpu.mem, sizeof(cl_mem), &n, sizeof(cl_int), &l.w, sizeof(cl_int), &l.h, sizeof(cl_int), &l.c, sizeof(cl_int), &size, sizeof(cl_int), &rate, sizeof(cl_float), &l.delta_gpu.mem, sizeof(cl_mem));
 }
 
 void backward_convolutional_layer_gpu(convolutional_layer l, network net)

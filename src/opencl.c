@@ -417,7 +417,7 @@ void opencl_deinit(int *gpus, int ngpus)
     // for (a=0; a<ngpus; a++){
         opencl_device_id_t = a;
         printf("clFinish\n");
-        // clFinish(opencl_queues[opencl_device_id_t]);
+        clFinish(opencl_queues[opencl_device_id_t]);
         printf("activation_kernel_release\n");
         activation_kernel_release();
         printf("blas_kernel_release\n");

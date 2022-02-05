@@ -696,6 +696,7 @@ float *network_predict(network *net, float *input)
 	net->delta = 0;
 	fprintf(stderr, "before forward_network\n");
 	forward_network(net);
+	printf("after forward_network\n");
 	float *out = net->output;
 	*net = orig;
 	return out;
@@ -1021,6 +1022,7 @@ matrix network_predict_data_multi(network *net, data test, int n)
 		}
 		for(m = 0; m < n; ++m){
 			float *out = network_predict(net, X);
+			printf("after network_predict\n");
 			for(b = 0; b < net->batch; ++b){
 				if(i+b == test.X.rows) break;
 				for(j = 0; j < k; ++j){
@@ -1056,6 +1058,7 @@ matrix network_predict_data(network *net, data test)
 				pred.vals[i+b][j] = out[j+b*k];
 			}
 		}
+		break;
 	}
 	free(X);
 	return pred;
@@ -1231,7 +1234,7 @@ void forward_network_gpu(network *netp)
 		clock_t t;
 		t = clock();
 #endif
-		fprintf(stderr, "forward gpu %d\n", i);
+		// fprintf(stderr, "forward gpu %d\n", i);
 		l.forward_gpu(l, net);
 #ifdef BENCHMARK
 		t = clock() - t;
@@ -1248,9 +1251,11 @@ void forward_network_gpu(network *netp)
 	}
 
 	// clFlush(opencl_queues[opencl_device_id_t]);
-
-	pull_network_output(netp);
-	if(net.train) calc_network_cost(netp);
+	printf("before pull_network_output\n");
+	// pull_network_output(netp);
+	printf("after pull_network_output\n");
+	// if(net.train) calc_network_cost(netp);
+	printf("after calc_network_cost\n");
 }
 
 void backward_network_gpu(network *netp)

@@ -151,6 +151,7 @@ void test_cifar(char *filename, char *weightfile)
     avg_top5 += acc[1];
     printf("top1: %f, %lf seconds, %d images\n", avg_acc, sec(clock()-time), test.X.rows);
     free_data(test);
+    printf("after free_data\n");
 }
 
 void extract_cifar()

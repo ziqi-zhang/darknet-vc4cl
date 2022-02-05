@@ -905,8 +905,9 @@ void gemm_offset_gpu(
 {
     //printf("gemm gpu: %d %d %d %d %d %f %d %d %f %d\n",TA, TB, M, N, K, ALPHA, lda, ldb, BETA, ldc);
 
-    int tuning = 32;
+    int tuning = 8;
     dim2 dimGridG1;
+    // printf("M*N=%d, M=%d, N=%d\n", M*N, M, N);
     dimGridG1 = dim2_create(tuning, M*N);
     dim2 dimGridL1;
     dimGridL1 = dim2_create(tuning, 1);
@@ -931,7 +932,7 @@ void gemm_offset_gpu(
                   &offset_C, sizeof(cl_int),
                   &ldc, sizeof(cl_int)
     );
-    printf("after gemm_offset_gpu\n");
+    // printf("after gemm_offset_gpu\n");
 }
 #endif
 #endif // GPU

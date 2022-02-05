@@ -410,36 +410,46 @@ void opencl_init(int *gpus, int ngpus) {
 
 void opencl_deinit(int *gpus, int ngpus)
 {
+    printf("in deinit, ngpus %d\n", ngpus);
     int a;
     int d;
     for (a = 0, d = ngpus-1; a < ngpus; --d, ++a) {
+    // for (a=0; a<ngpus; a++){
         opencl_device_id_t = a;
-
+        printf("clFinish\n");
         clFinish(opencl_queues[opencl_device_id_t]);
-
+        printf("activation_kernel_release\n");
         activation_kernel_release();
+        printf("blas_kernel_release\n");
         blas_kernel_release();
-        col2im_kernel_release();
+        // col2im_kernel_release();
+        printf("convolutional_kernel_release\n");
         convolutional_kernel_release();
+        printf("im2col_kernel_release\n");
         im2col_kernel_release();
+        printf("maxpool_kernel_release\n");
         maxpool_kernel_release();
+        printf("gemm_kernel_release\n");
         gemm_kernel_release();
+        printf("avgpool_kernel_release\n");
         avgpool_kernel_release();
 #ifndef ARM
+        printf("crop_kernel_release\n");
         crop_kernel_release();
 #endif
+        printf("dropout_kernel_release\n");
         dropout_kernel_release();
-
+        printf("clReleaseCommandQueue\n");
         clReleaseCommandQueue(opencl_queues[opencl_device_id_t]);
     }
 
     clReleaseContext(opencl_context);
 
     //free(cl_props);
-
+    printf("free(opencl_queues)\n");
     free(opencl_queues);
     free(opencl_devices);
-
+    printf("free(cl_native_double_width_s);\n");
     free(cl_native_double_width_s);
     free(cl_native_max_group_size_s);
     free(cl_native_address_bits_s);
@@ -542,7 +552,7 @@ void opencl_kernel(cl_kernel kernel, const dim2 globalItemSize, const int argc, 
         printf("OK \n");
     }
 #endif
-    printf("end of opencl_kernel\n");
+    // printf("end of opencl_kernel\n");
 }
 
 void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2 localItemSize, const int argc, ...)
@@ -556,7 +566,7 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
 
     size_t argSize = 0;
     void *argValue = NULL;
-    printf("opencl_kernel_local argc %d\n", argc);
+    // printf("opencl_kernel_local argc %d\n", argc);
 
 #ifdef DEBUG_KERNELS
     {
@@ -574,10 +584,10 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
     {
         argValue = va_arg(vl, void*);
         argSize = va_arg(vl, size_t);
-        if (argValue != NULL)
-            printf("opencl_kernel_local i=%d, size=%d, addr=%x, value=%d\n", i, argSize, argValue, *(int*)argValue);
-        else
-            printf("opencl_kernel_local i=%d, size=%d, addr=%x, value=null\n", i, argSize, argValue);
+        // if (argValue != NULL)
+        //     printf("opencl_kernel_local i=%d, size=%d, addr=%x, value=%d\n", i, argSize, argValue, *(int*)argValue);
+        // else
+        //     printf("opencl_kernel_local i=%d, size=%d, addr=%x, value=null\n", i, argSize, argValue);
 
         // I need NULL to __local arrays
         // assert(argValue);
@@ -596,7 +606,7 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
             exit(-1);
         }
     }
-    printf("after for loop\n");
+    // printf("after for loop\n");
 
     va_end(vl);
 
@@ -617,12 +627,15 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
     t = clock();
 #endif
 
+    // printf("globalOffset %d %d\n", globalOffset[0], globalOffset[1]);
+    // printf("globalItems %d %d\n", globalItems[0], globalItems[1]);
+    // printf("localItems %d %d\n", localItems[0], localItems[1]);
     clErr = clEnqueueNDRangeKernel(que, kernel, 2, globalOffset, globalItems, localItems, 0, NULL, NULL);
-    printf("after for clEnqueueNDRangeKernel\n");
+    // printf("after for clEnqueueNDRangeKernel\n");
     // clFlush(que);
 
 #ifdef BENCHMARK
-    printf("begin benchmark\n");
+    // printf("begin benchmark\n");
     t = clock() - t;
     double time_taken = ((double)t);
     const size_t bufferSize = 2048;
@@ -630,12 +643,12 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
     clGetKernelInfo(kernel, CL_KERNEL_FUNCTION_NAME, bufferSize, kernelName, NULL);
     printf("%s\t%d\n", kernelName, (int)time_taken);
     free(kernelName);
-    printf("after benchmark\n");
+    // printf("after benchmark\n");
 #endif
 
     if (clErr != CL_SUCCESS)
     {   
-        printf("Not success\n");
+        // printf("Not success\n");
         const size_t bufferSize = 2048;
         char *kernelName = (char*) calloc(bufferSize, sizeof(char));
 
@@ -647,7 +660,7 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
     }
 #ifdef DEBUG_KERNELS
     else {
-        printf("success\n");
+        // printf("success\n");
         const size_t bufferSize = 2048;
         char *kernelName = (char*) calloc(bufferSize, sizeof(char));
         clGetKernelInfo(kernel, CL_KERNEL_FUNCTION_NAME, bufferSize, kernelName, NULL);
@@ -656,7 +669,7 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
         printf("OK \n");
     }
 #endif
-    printf("end of opencl_kernel_local\n");
+    // printf("end of opencl_kernel_local\n");
 }
 
 cl_mem_ext opencl_random(cl_mem_ext x_gpu, size_t n)

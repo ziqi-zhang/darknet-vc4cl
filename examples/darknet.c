@@ -551,9 +551,12 @@ int main(int argc, char **argv)
     }
 #ifdef GPU
     if (gpu_index >= 0) {
+        printf("begin opencl_deinit\n");
         opencl_deinit(gpusg, ngpusg);
+        printf("after opencl_deinit\n");
     }
     free(gpusg);
+    printf("after free\n");
 #endif
     return 0;
 }

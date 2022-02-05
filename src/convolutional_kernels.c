@@ -93,6 +93,7 @@ void swap_binary_gpu(convolutional_layer *l)
 
 void forward_convolutional_layer_gpu(convolutional_layer l, network net)
 {
+    fprintf(stderr, "in forward_convolutional_layer_gpu\n");
     fill_gpu(l.outputs*l.batch, 0, l.output_gpu, 1);
     if(l.binary){
         binarize_weights_gpu(l.weights_gpu.mem, l.n, l.c/l.groups*l.size*l.size, l.binary_weights_gpu.mem);
@@ -110,17 +111,20 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
     int m = l.n/l.groups;
     int k = l.size*l.size*l.c/l.groups;
     int n = l.out_w*l.out_h;
+
     for(i = 0; i < l.batch; ++i){
         for(j = 0; j < l.groups; ++j){
             cl_mem_ext a = l.weights_gpu; // + j*l.nweights/l.groups;
             cl_mem_ext b = net.workspace_gpu;
             cl_mem_ext c = l.output_gpu; // + (i*l.groups + j)*n*m;
             cl_mem_ext im = net.input_gpu; // + (i*l.groups + j)*l.c/l.groups*l.h*l.w;
-
+            fprintf(stderr, "forward_convolutional_layer_gpu in for loop\n");
             if (l.size == 1){
+                fprintf(stderr, "forward_convolutional_layer_gpu in for loop l.size == 1\n");
                 b = im;
                 gemm_offset_gpu(0,0,m,n,k,1,a,j*l.nweights/l.groups,k,b,(i*l.groups + j)*l.c/l.groups*l.h*l.w,n,1,c,(i*l.groups + j)*n*m,n);
             } else {
+                fprintf(stderr, "forward_convolutional_layer_gpu in for loop l.size != 1\n");
                 im2col_gpu(im.mem, (i*l.groups + j)*l.c/l.groups*l.h*l.w, l.c/l.groups, l.h, l.w, l.size, l.stride, l.pad, b.mem);
                 gemm_offset_gpu(0,0,m,n,k,1,a,j*l.nweights/l.groups,k,b,0,n,1,c,(i*l.groups + j)*n*m,n);
             }

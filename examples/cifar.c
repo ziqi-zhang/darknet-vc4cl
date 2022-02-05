@@ -142,10 +142,10 @@ void test_cifar(char *filename, char *weightfile)
     clock_t time;
     float avg_acc = 0;
     float avg_top5 = 0;
-    data test = load_cifar10_data("data/cifar/cifar-10-batches-bin/test_batch.bin");
+    data test = load_cifar10_data("../data/cifar/cifar-10-batches-bin/test_batch.bin");
 
     time=clock();
-
+    fprintf(stderr, "test_cifar before accuracy\n");
     float *acc = network_accuracies(net, test, 2);
     avg_acc += acc[0];
     avg_top5 += acc[1];
@@ -175,66 +175,6 @@ char *labels[] = {"airplane","automobile","bird","cat","deer","dog","frog","hors
     }
 }
 
-void test_cifar_csv(char *filename, char *weightfile)
-{
-    network *net = load_network(filename, weightfile, 0);
-    srand(time(0));
-
-    data test = load_cifar10_data("data/cifar/cifar-10-batches-bin/test_batch.bin");
-
-    matrix pred = network_predict_data(net, test);
-
-    int i;
-    for(i = 0; i < test.X.rows; ++i){
-        image im = float_to_image(32, 32, 3, test.X.vals[i]);
-        flip_image(im);
-    }
-    matrix pred2 = network_predict_data(net, test);
-    scale_matrix(pred, .5);
-    scale_matrix(pred2, .5);
-    matrix_add_matrix(pred2, pred);
-
-    matrix_to_csv(pred);
-    fprintf(stderr, "Accuracy: %f\n", matrix_topk_accuracy(test.y, pred, 1));
-    free_data(test);
-}
-
-void test_cifar_csvtrain(char *cfg, char *weights)
-{
-    network *net = load_network(cfg, weights, 0);
-    srand(time(0));
-
-    data test = load_all_cifar10();
-
-    matrix pred = network_predict_data(net, test);
-
-    int i;
-    for(i = 0; i < test.X.rows; ++i){
-        image im = float_to_image(32, 32, 3, test.X.vals[i]);
-        flip_image(im);
-    }
-    matrix pred2 = network_predict_data(net, test);
-    scale_matrix(pred, .5);
-    scale_matrix(pred2, .5);
-    matrix_add_matrix(pred2, pred);
-
-    matrix_to_csv(pred);
-    fprintf(stderr, "Accuracy: %f\n", matrix_topk_accuracy(test.y, pred, 1));
-    free_data(test);
-}
-
-void eval_cifar_csv()
-{
-    data test = load_cifar10_data("data/cifar/cifar-10-batches-bin/test_batch.bin");
-
-    matrix pred = csv_to_matrix("results/combined.csv");
-    fprintf(stderr, "%d %d\n", pred.rows, pred.cols);
-
-    fprintf(stderr, "Accuracy: %f\n", matrix_topk_accuracy(test.y, pred, 1));
-    free_data(test);
-    free_matrix(pred);
-}
-
 
 void run_cifar(int argc, char **argv)
 {
@@ -250,8 +190,5 @@ void run_cifar(int argc, char **argv)
     else if(0==strcmp(argv[2], "distill")) train_cifar_distill(cfg, weights);
     else if(0==strcmp(argv[2], "test")) test_cifar(cfg, weights);
     else if(0==strcmp(argv[2], "multi")) test_cifar_multi(cfg, weights);
-    else if(0==strcmp(argv[2], "csv")) test_cifar_csv(cfg, weights);
-    else if(0==strcmp(argv[2], "csvtrain")) test_cifar_csvtrain(cfg, weights);
-    else if(0==strcmp(argv[2], "eval")) eval_cifar_csv();
 }
 #undef class

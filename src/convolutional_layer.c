@@ -176,8 +176,8 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
 #ifdef GPU
 	if (gpu_index >= 0) {
 		l.forward_gpu = forward_convolutional_layer_gpu;
-		l.backward_gpu = backward_convolutional_layer_gpu;
-		l.update_gpu = update_convolutional_layer_gpu;
+		// l.backward_gpu = backward_convolutional_layer_gpu;
+		// l.update_gpu = update_convolutional_layer_gpu;
 
 		if (adam) {
 			l.m_gpu = opencl_make_array(l.m, l.nweights);
@@ -189,12 +189,12 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
 		}
 
 		l.weights_gpu = opencl_make_array(l.weights, l.nweights);
-		l.weight_updates_gpu = opencl_make_array(l.weight_updates, l.nweights);
+		// l.weight_updates_gpu = opencl_make_array(l.weight_updates, l.nweights);
 
 		l.biases_gpu = opencl_make_array(l.biases, n);
-		l.bias_updates_gpu = opencl_make_array(l.bias_updates, n);
+		// l.bias_updates_gpu = opencl_make_array(l.bias_updates, n);
 
-		l.delta_gpu = opencl_make_array(l.delta, l.batch*out_h*out_w*n);
+		// l.delta_gpu = opencl_make_array(l.delta, l.batch*out_h*out_w*n);
 		l.output_gpu = opencl_make_array(l.output, l.batch*out_h*out_w*n);
 
 		if(binary){

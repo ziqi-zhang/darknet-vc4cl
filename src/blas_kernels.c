@@ -76,7 +76,9 @@ cl_kernel* opencl_scal_add_kernel;
 
 void blas_kernel_init(void)
 {
+    
     if (opencl_device_id_t == 0) {
+        printf("opencl_device_id_t==0\n");
         opencl_blas_kernel_program1 = (cl_program*)calloc(opencl_device_ct_t, sizeof(cl_program));
         opencl_blas_kernel_program2 = (cl_program*)calloc(opencl_device_ct_t, sizeof(cl_program));
         opencl_blas_kernel_program3 = (cl_program*)calloc(opencl_device_ct_t, sizeof(cl_program));
@@ -134,10 +136,12 @@ void blas_kernel_init(void)
         opencl_scal_add_kernel= (cl_kernel*)calloc(opencl_device_ct_t, sizeof(cl_kernel));
     }
     
+    printf("opencl_load_buffer\n");
     opencl_load_buffer(blas_kernel_source_1, strlen(blas_kernel_source_1), &opencl_blas_kernel_program1[opencl_device_id_t]);
     opencl_load_buffer(blas_kernel_source_2, strlen(blas_kernel_source_2), &opencl_blas_kernel_program2[opencl_device_id_t]);
     opencl_load_buffer(blas_kernel_source_3, strlen(blas_kernel_source_3), &opencl_blas_kernel_program3[opencl_device_id_t]);
 
+    printf("opencl_create_kernel\n");
     opencl_create_kernel(&opencl_blas_kernel_program1[opencl_device_id_t], "scale_bias_kernel", &opencl_scale_bias_kernel[opencl_device_id_t]);
     opencl_create_kernel(&opencl_blas_kernel_program1[opencl_device_id_t], "backward_scale_kernel", &opencl_backward_scale_kernel[opencl_device_id_t]);
     opencl_create_kernel(&opencl_blas_kernel_program1[opencl_device_id_t], "add_bias_kernel", &opencl_add_bias_kernel[opencl_device_id_t]);

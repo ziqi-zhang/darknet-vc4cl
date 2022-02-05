@@ -1135,6 +1135,7 @@ network *parse_network_cfg(char *filename)
         }
         free_section(s);
         n = n->next;
+        fprintf(stderr, "finish count %d\n", count);
         ++count;
         if(n){
             params.h = l.out_h;
@@ -1151,6 +1152,7 @@ network *parse_network_cfg(char *filename)
     net->output = out.output;
     net->input = (float*)calloc(net->inputs*net->batch, sizeof(float));
     net->truth = (float*)calloc(net->truths*net->batch, sizeof(float));
+    fprintf(stderr, "calloc GPU\n");
     //TODO: CHECK! (1)
     //net->delta = calloc(net->outputs*net->batch, sizeof(float));
 #ifdef GPU
@@ -1162,6 +1164,7 @@ network *parse_network_cfg(char *filename)
         //net->delta_gpu = opencl_make_array(net->delta, net->outputs * net->batch);
     }
 #endif
+    fprintf(stderr, "calloc workspace\n");
     if(workspace_size){
         //printf("%ld\n", workspace_size);
 #ifdef GPU
@@ -1175,6 +1178,7 @@ network *parse_network_cfg(char *filename)
         net->workspace = calloc(workspace_size, sizeof(float));
 #endif
     }
+    fprintf(stderr, "finish calloc workspace\n");
     return net;
 }
 
@@ -1463,6 +1467,7 @@ network parse_network_cfg_custom(char *filename, int batch, int time_steps)
         free_section(s);
         n = n->next;
         ++count;
+        fprintf(stderr, "after count %d\n", count);
         if(n){
             if (l.antialiasing) {
                 params.h = l.input_layer->out_h;
@@ -1484,6 +1489,7 @@ network parse_network_cfg_custom(char *filename, int batch, int time_steps)
             avg_counter++;
         }
     }
+    fprintf(stderr, "backward calloc\n");
 
     if (last_stop_backward > -1) {
         int k;
@@ -1504,6 +1510,7 @@ network parse_network_cfg_custom(char *filename, int batch, int time_steps)
             net.layers[k].train = 0;
         }
     }
+    fprintf(stderr, "after backward calloc\n");
 
     free_list(sections);
 

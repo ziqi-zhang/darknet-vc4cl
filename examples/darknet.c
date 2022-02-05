@@ -454,6 +454,7 @@ int main(int argc, char **argv)
         gpusg = gpus;
         ngpusg = ngpus;
         opencl_init(gpus, ngpus);
+        printf("Opencl_init finished\n");
     }
 #endif
 

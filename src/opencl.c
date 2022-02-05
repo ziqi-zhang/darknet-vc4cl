@@ -383,17 +383,27 @@ void opencl_init(int *gpus, int ngpus) {
         free(buffer);
         sleep(1);
 #endif
+        printf("activation_kernel_init\n");
         activation_kernel_init();
+        printf("blas_kernel_init\n");
         blas_kernel_init();
-        col2im_kernel_init();
+        // printf("col2im_kernel_init\n");
+        // col2im_kernel_init();
+        printf("convolutional_kernel_init\n");
         convolutional_kernel_init();
+        printf("im2col_kernel_init\n");
         im2col_kernel_init();
+        printf("maxpool_kernel_init\n");
         maxpool_kernel_init();
+        printf("gemm_kernel_init\n");
         gemm_kernel_init();
+        printf("avgpool_kernel_init\n");
         avgpool_kernel_init();
 #ifndef ARM
+        printf("crop_kernel_init\n");
         crop_kernel_init();
 #endif
+        printf("dropout_kernel_init\n");
         dropout_kernel_init();
     }
 }

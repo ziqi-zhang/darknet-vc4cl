@@ -276,15 +276,18 @@ void forward_network(network *netp)
 {
 #ifdef GPU
     if(netp->gpu_index >= 0){
+		fprintf(stderr, "In forward_network_gpu\n");
         forward_network_gpu(netp);   
         return;
     }
 #endif
+	fprintf(stderr, "In forward_network\n");
     network net = *netp;
     int i;
     for(i = 0; i < net.n; ++i){
         net.index = i;
         layer l = net.layers[i];
+		printf(stderr, "Forward layer %d \n", i);
         if(l.delta){
             fill_cpu(l.outputs * l.batch, 0, l.delta, 1);
         }
@@ -691,6 +694,7 @@ float *network_predict(network *net, float *input)
 	net->truth = 0;
 	net->train = 0;
 	net->delta = 0;
+	fprintf(stderr, "before forward_network\n");
 	forward_network(net);
 	float *out = net->output;
 	*net = orig;
@@ -1024,6 +1028,7 @@ matrix network_predict_data_multi(network *net, data test, int n)
 				}
 			}
 		}
+		break;
 	}
 	free(X);
 	return pred;
@@ -1033,13 +1038,17 @@ matrix network_predict_data(network *net, data test)
 {
 	int i,j,b;
 	int k = net->outputs;
+	fprintf(stderr, "make matrix\n");
 	matrix pred = make_matrix(test.X.rows, k);
+	fprintf(stderr, "before calloc X\n");
 	float *X = (float*)calloc(net->batch*test.X.cols, sizeof(float));
+	fprintf(stderr, "before loop\n");
 	for(i = 0; i < test.X.rows; i += net->batch){
 		for(b = 0; b < net->batch; ++b){
 			if(i+b == test.X.rows) break;
 			memcpy(X+b*test.X.cols, test.X.vals[i+b], test.X.cols*sizeof(float));
 		}
+		fprintf(stderr, "before network_predict\n");
 		float *out = network_predict(net, X);
 		for(b = 0; b < net->batch; ++b){
 			if(i+b == test.X.rows) break;
@@ -1205,10 +1214,12 @@ float *network_output(network *net)
 void forward_network_gpu(network *netp)
 {
 	network net = *netp;
+	fprintf(stderr, "forward_network_gpu set input\n");
 	opencl_push_array(net.input_gpu, net.input, net.inputs*net.batch);
 	if(net.train && net.truth){
 		opencl_push_array(net.truth_gpu, net.truth, net.truths*net.batch);
 	}
+	fprintf(stderr, "finish forward_network_gpu set input\n");
 	int i;
 	for(i = 0; i < net.n; ++i){
 		net.index = i;
@@ -1220,6 +1231,7 @@ void forward_network_gpu(network *netp)
 		clock_t t;
 		t = clock();
 #endif
+		fprintf(stderr, "forward gpu %d\n", i);
 		l.forward_gpu(l, net);
 #ifdef BENCHMARK
 		t = clock() - t;

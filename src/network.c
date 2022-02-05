@@ -1250,11 +1250,12 @@ void forward_network_gpu(network *netp)
 		}
 	}
 
-	// clFlush(opencl_queues[opencl_device_id_t]);
+	printf("before clFlush\n");
+	clFlush(opencl_queues[opencl_device_id_t]);
 	printf("before pull_network_output\n");
-	// pull_network_output(netp);
+	pull_network_output(netp);
 	printf("after pull_network_output\n");
-	// if(net.train) calc_network_cost(netp);
+	if(net.train) calc_network_cost(netp);
 	printf("after calc_network_cost\n");
 }
 

@@ -417,7 +417,7 @@ void opencl_deinit(int *gpus, int ngpus)
     // for (a=0; a<ngpus; a++){
         opencl_device_id_t = a;
         printf("clFinish\n");
-        clFinish(opencl_queues[opencl_device_id_t]);
+        // clFinish(opencl_queues[opencl_device_id_t]);
         printf("activation_kernel_release\n");
         activation_kernel_release();
         printf("blas_kernel_release\n");
@@ -893,7 +893,9 @@ void opencl_pull_array(cl_mem_ext x_gpu, float *x, size_t n)
     t = clock();
 #endif
     if (x_gpu.ptr == (void*)x) {
+        printf("before clEnqueueReadBuffer\n");
         cl_int clErr = clEnqueueReadBuffer(x_gpu.que, x_gpu.mem, CL_TRUE, x_gpu.off * x_gpu.obs, (n - x_gpu.off) * x_gpu.obs, x, 0, NULL, NULL);
+        printf("after clEnqueueReadBuffer\n");
         if (clErr != CL_SUCCESS)
             printf("could not pull array from device. error: %s\n", clCheckError(clErr));
     }

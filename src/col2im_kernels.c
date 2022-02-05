@@ -49,7 +49,7 @@ void col2im_gpu(cl_mem data_col, int offset,
 
     int zero = 0;
 
-    opencl_kernel(opencl_col2im_kernel[opencl_device_id_t], dimGrid, 12,
+    opencl_kernel(opencl_col2im_kernel[opencl_device_id_t], dimGrid, 24,
         &num_kernels, sizeof(cl_int),
         &data_col, sizeof(cl_mem),
         &height, sizeof(cl_int),

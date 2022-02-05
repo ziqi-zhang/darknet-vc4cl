@@ -1135,7 +1135,6 @@ network *parse_network_cfg(char *filename)
         }
         free_section(s);
         n = n->next;
-        fprintf(stderr, "finish count %d\n", count);
         ++count;
         if(n){
             params.h = l.out_h;

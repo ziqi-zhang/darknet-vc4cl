@@ -46,7 +46,7 @@ void forward_maxpool_layer_gpu(maxpool_layer layer, network net)
     dim2 dimN;
     dimN = opencl_gridsize(n);
 
-    opencl_kernel(opencl_forward_maxpool_layer_kernel[opencl_device_id_t], dimN, 12, &n, sizeof(cl_int), &layer.h, sizeof(cl_int), &layer.w, sizeof(cl_int), &layer.c, sizeof(cl_int), &layer.stride, sizeof(cl_int), &layer.size, sizeof(cl_int), &layer.pad, sizeof(cl_int), &net.input_gpu.mem, sizeof(cl_mem), &layer.output_gpu.mem, sizeof(cl_mem), &layer.indexes_gpu.mem, sizeof(cl_mem));
+    opencl_kernel(opencl_forward_maxpool_layer_kernel[opencl_device_id_t], dimN, 20, &n, sizeof(cl_int), &layer.h, sizeof(cl_int), &layer.w, sizeof(cl_int), &layer.c, sizeof(cl_int), &layer.stride, sizeof(cl_int), &layer.size, sizeof(cl_int), &layer.pad, sizeof(cl_int), &net.input_gpu.mem, sizeof(cl_mem), &layer.output_gpu.mem, sizeof(cl_mem), &layer.indexes_gpu.mem, sizeof(cl_mem));
 }
 
 void backward_maxpool_layer_gpu(maxpool_layer layer, network net)
@@ -56,7 +56,7 @@ void backward_maxpool_layer_gpu(maxpool_layer layer, network net)
     dim2 dimN;
     dimN = opencl_gridsize(n);
 
-    opencl_kernel(opencl_backward_maxpool_layer_kernel[opencl_device_id_t], dimN, 12, &n, sizeof(cl_int), &layer.h, sizeof(cl_int), &layer.w, sizeof(cl_int), &layer.c, sizeof(cl_int), &layer.stride, sizeof(cl_int), &layer.size, sizeof(cl_int), &layer.pad, sizeof(cl_int), &layer.delta_gpu.mem, sizeof(cl_mem), &net.delta_gpu.mem, sizeof(cl_mem), &layer.indexes_gpu.mem, sizeof(cl_mem));
+    opencl_kernel(opencl_backward_maxpool_layer_kernel[opencl_device_id_t], dimN, 20, &n, sizeof(cl_int), &layer.h, sizeof(cl_int), &layer.w, sizeof(cl_int), &layer.c, sizeof(cl_int), &layer.stride, sizeof(cl_int), &layer.size, sizeof(cl_int), &layer.pad, sizeof(cl_int), &layer.delta_gpu.mem, sizeof(cl_mem), &net.delta_gpu.mem, sizeof(cl_mem), &layer.indexes_gpu.mem, sizeof(cl_mem));
 }
 
 #endif // GPU

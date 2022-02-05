@@ -458,6 +458,7 @@ void opencl_kernel(cl_kernel kernel, const dim2 globalItemSize, const int argc, 
 
     size_t argSize = 0;
     void *argValue = NULL;
+    // printf("opencl_kernel argc %d\n", argc);
 
 #ifdef DEBUG_KERNELS
     {
@@ -473,11 +474,12 @@ void opencl_kernel(cl_kernel kernel, const dim2 globalItemSize, const int argc, 
     int i, j;
     for (i = 0, j = 0; i < argc; i+=2, ++j)
     {
+        
         argValue = va_arg(vl, void*);
         argSize = va_arg(vl, size_t);
+        // printf("opencl_kernel i=%d, size=%d, addr=%x, value=%d\n", i, argSize, argValue, *(int*)argValue);
 
         assert(argValue);
-
         clErr = clSetKernelArg(kernel, j, argSize, argValue);
 
         if (clErr != CL_SUCCESS)
@@ -506,9 +508,7 @@ void opencl_kernel(cl_kernel kernel, const dim2 globalItemSize, const int argc, 
     clock_t t;
     t = clock();
 #endif
-
     clErr = clEnqueueNDRangeKernel(que, kernel, 2, globalOffset, globalItems, NULL, 0, NULL, NULL);
-
     // clFlush(que);
 
 #ifdef BENCHMARK
@@ -542,6 +542,7 @@ void opencl_kernel(cl_kernel kernel, const dim2 globalItemSize, const int argc, 
         printf("OK \n");
     }
 #endif
+    printf("end of opencl_kernel\n");
 }
 
 void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2 localItemSize, const int argc, ...)
@@ -555,6 +556,7 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
 
     size_t argSize = 0;
     void *argValue = NULL;
+    printf("opencl_kernel_local argc %d\n", argc);
 
 #ifdef DEBUG_KERNELS
     {
@@ -572,6 +574,10 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
     {
         argValue = va_arg(vl, void*);
         argSize = va_arg(vl, size_t);
+        if (argValue != NULL)
+            printf("opencl_kernel_local i=%d, size=%d, addr=%x, value=%d\n", i, argSize, argValue, *(int*)argValue);
+        else
+            printf("opencl_kernel_local i=%d, size=%d, addr=%x, value=null\n", i, argSize, argValue);
 
         // I need NULL to __local arrays
         // assert(argValue);
@@ -590,6 +596,7 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
             exit(-1);
         }
     }
+    printf("after for loop\n");
 
     va_end(vl);
 
@@ -611,10 +618,11 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
 #endif
 
     clErr = clEnqueueNDRangeKernel(que, kernel, 2, globalOffset, globalItems, localItems, 0, NULL, NULL);
-
+    printf("after for clEnqueueNDRangeKernel\n");
     // clFlush(que);
 
 #ifdef BENCHMARK
+    printf("begin benchmark\n");
     t = clock() - t;
     double time_taken = ((double)t);
     const size_t bufferSize = 2048;
@@ -622,10 +630,12 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
     clGetKernelInfo(kernel, CL_KERNEL_FUNCTION_NAME, bufferSize, kernelName, NULL);
     printf("%s\t%d\n", kernelName, (int)time_taken);
     free(kernelName);
+    printf("after benchmark\n");
 #endif
 
     if (clErr != CL_SUCCESS)
-    {
+    {   
+        printf("Not success\n");
         const size_t bufferSize = 2048;
         char *kernelName = (char*) calloc(bufferSize, sizeof(char));
 
@@ -637,6 +647,7 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
     }
 #ifdef DEBUG_KERNELS
     else {
+        printf("success\n");
         const size_t bufferSize = 2048;
         char *kernelName = (char*) calloc(bufferSize, sizeof(char));
         clGetKernelInfo(kernel, CL_KERNEL_FUNCTION_NAME, bufferSize, kernelName, NULL);
@@ -645,6 +656,7 @@ void opencl_kernel_local(cl_kernel kernel, const dim2 globalItemSize, const dim2
         printf("OK \n");
     }
 #endif
+    printf("end of opencl_kernel_local\n");
 }
 
 cl_mem_ext opencl_random(cl_mem_ext x_gpu, size_t n)

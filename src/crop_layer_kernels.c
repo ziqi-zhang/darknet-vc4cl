@@ -59,7 +59,7 @@ void forward_crop_layer_gpu(crop_layer layer, network net)
     dim2 dimGrid;
     dimGrid = opencl_gridsize(size);
 
-    opencl_kernel(opencl_levels_image_kernel[opencl_device_id_t], dimGrid, 12,
+    opencl_kernel(opencl_levels_image_kernel[opencl_device_id_t], dimGrid, 22,
       &net.input_gpu.mem, sizeof(cl_mem),
       &layer.rand_gpu.mem, sizeof(cl_mem),
       &layer.batch, sizeof(cl_int),
@@ -74,7 +74,7 @@ void forward_crop_layer_gpu(crop_layer layer, network net)
 
     size = layer.batch*layer.c*layer.out_w*layer.out_h;
 
-    opencl_kernel(opencl_forward_crop_layer_kernel[opencl_device_id_t], dimGrid, 12,
+    opencl_kernel(opencl_forward_crop_layer_kernel[opencl_device_id_t], dimGrid, 24,
       &net.input_gpu.mem, sizeof(cl_mem),
       &layer.rand_gpu.mem, sizeof(cl_mem),
       &size, sizeof(cl_int),

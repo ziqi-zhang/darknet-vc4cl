@@ -48,8 +48,7 @@ void im2col_gpu(cl_mem im, int offset,
     dimGrid = dim2_create(num_kernels, 1);
 
     int zero = 0;
-    printf("before opencl_kernel\n");
-    opencl_kernel(opencl_im2col_gpu_kernel[opencl_device_id_t], dimGrid, 12,
+    opencl_kernel(opencl_im2col_gpu_kernel[opencl_device_id_t], dimGrid, 24,
         &num_kernels, sizeof(cl_int),
         &im, sizeof(cl_mem),
         &height, sizeof(cl_int),
@@ -62,6 +61,7 @@ void im2col_gpu(cl_mem im, int offset,
         &data_col, sizeof(cl_mem),
         &zero, sizeof(cl_int),
         &offset, sizeof(cl_int));
+    // printf("end of im2col_gpu");
 }
 
 #endif // GPU

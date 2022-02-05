@@ -931,6 +931,7 @@ void gemm_offset_gpu(
                   &offset_C, sizeof(cl_int),
                   &ldc, sizeof(cl_int)
     );
+    printf("after gemm_offset_gpu\n");
 }
 #endif
 #endif // GPU

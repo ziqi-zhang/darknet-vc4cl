@@ -126,7 +126,9 @@ void forward_convolutional_layer_gpu(convolutional_layer l, network net)
             } else {
                 fprintf(stderr, "forward_convolutional_layer_gpu in for loop l.size != 1\n");
                 im2col_gpu(im.mem, (i*l.groups + j)*l.c/l.groups*l.h*l.w, l.c/l.groups, l.h, l.w, l.size, l.stride, l.pad, b.mem);
+                printf("after im2col\n");
                 gemm_offset_gpu(0,0,m,n,k,1,a,j*l.nweights/l.groups,k,b,0,n,1,c,(i*l.groups + j)*n*m,n);
+                printf("after gemm_offset_gpu\n");
             }
         }
     }
@@ -153,7 +155,7 @@ void smooth_layer(layer l, int size, float rate)
     dim2 dimN;
     dimN = opencl_gridsize((const int) n);
 
-    opencl_kernel(opencl_smooth_kernel[opencl_device_id_t], dimN, 12, &l.output_gpu.mem, sizeof(cl_mem), &n, sizeof(cl_int), &l.w, sizeof(cl_int), &l.h, sizeof(cl_int), &l.c, sizeof(cl_int), &size, sizeof(cl_int), &rate, sizeof(cl_float), &l.delta_gpu.mem, sizeof(cl_mem));
+    opencl_kernel(opencl_smooth_kernel[opencl_device_id_t], dimN, 16, &l.output_gpu.mem, sizeof(cl_mem), &n, sizeof(cl_int), &l.w, sizeof(cl_int), &l.h, sizeof(cl_int), &l.c, sizeof(cl_int), &size, sizeof(cl_int), &rate, sizeof(cl_float), &l.delta_gpu.mem, sizeof(cl_mem));
 }
 
 void backward_convolutional_layer_gpu(convolutional_layer l, network net)

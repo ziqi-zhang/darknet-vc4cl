@@ -137,9 +137,34 @@ void blas_kernel_init(void)
     }
     
     printf("opencl_load_buffer\n");
-    opencl_load_buffer(blas_kernel_source_1, strlen(blas_kernel_source_1), &opencl_blas_kernel_program1[opencl_device_id_t]);
-    opencl_load_buffer(blas_kernel_source_2, strlen(blas_kernel_source_2), &opencl_blas_kernel_program2[opencl_device_id_t]);
-    opencl_load_buffer(blas_kernel_source_3, strlen(blas_kernel_source_3), &opencl_blas_kernel_program3[opencl_device_id_t]);
+    
+    char save_path[100];
+    strcpy(save_path, cl_binary_dir);
+    strcat(save_path, "blas_kernel_source_1.bin");
+    opencl_load_buffer_cache(
+        blas_kernel_source_1, strlen(blas_kernel_source_1), 
+        &opencl_blas_kernel_program1[opencl_device_id_t], 
+        save_path
+    );
+
+    strcpy(save_path, cl_binary_dir);
+    strcat(save_path, "blas_kernel_source_2.bin");
+    printf("path %s\n", save_path);
+    opencl_load_buffer_cache(
+        blas_kernel_source_2, strlen(blas_kernel_source_2), 
+        &opencl_blas_kernel_program2[opencl_device_id_t], 
+        save_path
+    );
+
+    strcpy(save_path, cl_binary_dir);
+    strcat(save_path, "blas_kernel_source_3.bin");
+    printf("path %s\n", save_path);
+    opencl_load_buffer_cache(
+        blas_kernel_source_3, strlen(blas_kernel_source_3), 
+        &opencl_blas_kernel_program3[opencl_device_id_t], 
+        save_path
+    );
+    // exit(0);
 
     printf("opencl_create_kernel\n");
     opencl_create_kernel(&opencl_blas_kernel_program1[opencl_device_id_t], "scale_bias_kernel", &opencl_scale_bias_kernel[opencl_device_id_t]);

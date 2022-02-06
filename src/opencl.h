@@ -110,6 +110,7 @@ dim2 dim2_create(const int x, const int y);
 
 void opencl_load(const char *fileName, cl_program *output);
 void opencl_load_buffer(const char *bufferName, const size_t size, cl_program *output);
+void opencl_load_buffer_cache(const char *bufferName, const size_t size, cl_program *output, const char* save_path);
 void opencl_create_kernel(cl_program *program, const char *kernalName, cl_kernel *kernel);
 void opencl_init(int *gpus, int ngpus);
 void opencl_deinit(int *gpus, int ngpus);
@@ -134,6 +135,11 @@ void opencl_push_int_array_map(cl_mem_ext x_gpu, int *x, size_t n);
 
 void opencl_pull_array_map(cl_mem_ext x_gpu, float *x, size_t n);
 void opencl_push_array_map(cl_mem_ext x_gpu, float *x, size_t n);
+
+int writeBinaryToFile(const char* fileName, const char* birary, size_t numBytes);
+static const char* cl_binary_dir = "cl_binary/";
+void make_dir( const char* path );
+
 
 #endif // GPU
 #endif // OPENCL_H

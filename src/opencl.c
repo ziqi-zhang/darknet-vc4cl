@@ -26,6 +26,10 @@ int gpu_index = 1;
 
 #include "blas.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 int *gpusg;
 int ngpusg;
 #ifdef WIN32
@@ -224,6 +228,184 @@ char* concat(const char *s1, const char *s2)
     return result;
 }
 
+void make_dir( const char* path ){
+    struct stat st = {0};
+
+    if (stat(path, &st) == -1) {
+        printf("make dir %s\n", path);
+        mkdir(path, 0700);
+    }
+    // if ((_access(path, 0)) != -1){
+    //     printf("%s exists!\n", path);
+    // } else{
+    //     mkdir(path);
+    //     printf("make dir %s\n", path);
+    // }
+}
+int writeBinaryToFile(const char* fileName, const char* birary, size_t numBytes)
+{
+    FILE *output = NULL;
+    output = fopen(fileName, "wb");
+    if(output == NULL)
+        return 0;
+
+    fwrite(birary, sizeof(char), numBytes, output);
+    fclose(output);
+
+    return 1;
+}
+// char* readBinaryFromFile(const char* fileName, cl_program *output)
+// {
+//     FILE * input = NULL;
+//     size_t size = 0;
+//     char* binary = NULL;
+
+//     input = fopen(fileName, "rb");
+//     if(input == NULL)
+//     {
+//         return false;
+//     }
+
+//     fseek(input, 0L, SEEK_END); 
+//     size = ftell(input);
+
+//     rewind(input);
+//     binary = (char*)malloc(size);
+//     if(binary == NULL)
+//     {
+//         return false;
+//     }
+//     fread(binary, sizeof(char), size, input);
+//     fclose(input);
+//     source_.assign(binary, size);
+//     free(binary);
+
+//     return binary;
+// }
+
+
+void opencl_load_buffer_cache(const char *buffer, const size_t size, cl_program *output, const char* save_path)
+{
+    int read_cache = 0;
+    FILE * try_input = NULL;
+    try_input = fopen(save_path, "rb");
+    if (try_input == NULL){
+        read_cache = 0;
+        printf("%s does not exist, will compile from source code\n", save_path);
+    }
+    else{
+        read_cache = 1;
+        printf("%s exists, will directly load the binary program\n", save_path);
+    }
+        
+
+    cl_int clErr;
+
+    if (read_cache){
+        FILE * input = NULL;
+        size_t size = 0;
+        char* binary = NULL;
+
+        input = fopen(save_path, "rb");
+        if(input == NULL)
+        {
+            printf("opencl_load_buffer_cache input is NULL\n");
+            exit(-1);
+        }
+
+        fseek(input, 0L, SEEK_END); 
+        size = ftell(input);
+
+        rewind(input);
+        binary = (char*)malloc(size);
+        if(binary == NULL)
+        {
+            printf("opencl_load_buffer_cache binary is NULL\n");
+            exit(-1);
+        }
+        fread(binary, sizeof(char), size, input);
+        fclose(input);
+
+        *output = clCreateProgramWithBinary(
+            opencl_context, 1, &opencl_devices[opencl_device_id_t],
+             (const size_t *)&size, (const unsigned char**)&binary, NULL, &clErr);
+
+        free(binary);
+
+        if (clErr != CL_SUCCESS)
+        {
+            printf("opencl_load: could not load binary program. error: %s\n", clCheckError(clErr));
+            exit(-1);
+        }
+        else{
+            printf("opencl_load_buffer_cache successfully load binary %s\n", save_path);
+        }
+        
+    } else{
+        *output = clCreateProgramWithSource(opencl_context, 1,
+                                        (const char**)&buffer, &size, &clErr);
+        if (clErr != CL_SUCCESS)
+        {
+            printf("opencl_load: could not create program. error: %s\n", clCheckError(clErr));
+            exit(-1);
+        }
+    }
+    
+
+    
+#ifdef ARM
+    clErr = clBuildProgram(
+            *output,
+            1,
+            &opencl_devices[opencl_device_id_t],
+            NULL, NULL, NULL);
+#else
+    clErr = clBuildProgram(
+            *output,
+            1,
+            &opencl_devices[opencl_device_id_t],
+            "-Werror "
+            "-cl-std=CL1.2 "
+            "-cl-opt-disable "
+          //"-cl-denorms-are-zero "
+          //"-cl-fp32-correctly-rounded-divide-sqrt "
+            "-cl-no-signed-zeros "
+            "-cl-mad-enable "
+          //"-cl-fast-relaxed-math "
+            , NULL, NULL);
+#endif
+
+    if (clErr != CL_SUCCESS)
+    {
+        printf("opencl_load: could not compile. error: %s\n", clCheckError(clErr));
+        size_t len;
+        char *ebuffer = (char*)calloc(0x10000000, sizeof(char));
+        clGetProgramBuildInfo(*output, opencl_devices[opencl_device_id_t], CL_PROGRAM_BUILD_LOG, 0x10000000 * sizeof(char), ebuffer, &len);
+        printf("code:\n%s\n", ebuffer);
+        free(ebuffer);
+        exit(-1);
+    }
+
+    if (!read_cache){
+        printf("begin save to %s\n", save_path);
+        char **binaries = (char **)malloc( sizeof(char *) * 1 ); 
+        size_t *binarySizes = (size_t*)malloc( sizeof(size_t) * 1 );
+        clErr = clGetProgramInfo(*output, 
+            CL_PROGRAM_BINARY_SIZES,
+            sizeof(size_t) * 1, 
+            binarySizes, NULL);
+        binaries[0] = (char *)malloc( sizeof(char) * binarySizes[0]);
+        clErr = clGetProgramInfo(*output, 
+            CL_PROGRAM_BINARIES,
+            sizeof(char *) * 1, 
+            binaries, 
+            NULL);    
+        writeBinaryToFile(save_path, binaries[0],binarySizes[0]);
+    }
+
+    // exit(0);
+}
+
 void opencl_load_buffer(const char *buffer, const size_t size, cl_program *output)
 {
     cl_int clErr;
@@ -269,6 +451,7 @@ void opencl_load_buffer(const char *buffer, const size_t size, cl_program *outpu
         free(ebuffer);
         exit(-1);
     }
+
 }
 
 void opencl_create_kernel(cl_program *program, const char *kernelName,
@@ -286,6 +469,8 @@ void opencl_create_kernel(cl_program *program, const char *kernelName,
 }
 
 void opencl_init(int *gpus, int ngpus) {
+    make_dir(cl_binary_dir);
+
     opencl_device_ct_t = ngpus;
 
     cl_native_double_width_s = (cl_int*)calloc(ngpus, sizeof(int));

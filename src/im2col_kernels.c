@@ -17,8 +17,20 @@ void im2col_kernel_init(void)
         opencl_im2col_gpu_kernel = (cl_kernel*)calloc(opencl_device_ct_t, sizeof(cl_kernel));
     }
 
-    opencl_load_buffer(im2col_kernel_source, strlen(im2col_kernel_source), &opencl_im2col_kernels_program[opencl_device_id_t]);
-    opencl_create_kernel(&opencl_im2col_kernels_program[opencl_device_id_t], "im2col_gpu_kernel", &opencl_im2col_gpu_kernel[opencl_device_id_t]);
+    char save_path[100];
+    strcpy(save_path, cl_binary_dir);
+    strcat(save_path, "im2col_kernel_source.bin");
+    opencl_load_buffer_cache(
+        im2col_kernel_source, 
+        strlen(im2col_kernel_source), 
+        &opencl_im2col_kernels_program[opencl_device_id_t],
+        save_path
+    );
+    opencl_create_kernel(
+        &opencl_im2col_kernels_program[opencl_device_id_t], 
+        "im2col_gpu_kernel", 
+        &opencl_im2col_gpu_kernel[opencl_device_id_t]
+    );
 }
 
 void im2col_kernel_release(void)

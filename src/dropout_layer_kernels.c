@@ -18,7 +18,14 @@ void dropout_kernel_init(void)
         opencl_yoloswag420blazeit360noscopemMmMmMonsterKill = (cl_kernel*)calloc(opencl_device_ct_t, sizeof(cl_kernel));
     }
 
-    opencl_load_buffer(dropout_layer_kernel_source, strlen(dropout_layer_kernel_source), &opencl_dropout_layer_program[opencl_device_id_t]);
+    char save_path[100];
+    strcpy(save_path, cl_binary_dir);
+    strcat(save_path, "dropout_layer_kernel_source.bin");
+    opencl_load_buffer_cache(
+        dropout_layer_kernel_source, strlen(dropout_layer_kernel_source), 
+        &opencl_dropout_layer_program[opencl_device_id_t],
+        save_path
+    );
 
     opencl_create_kernel(&opencl_dropout_layer_program[opencl_device_id_t], "yoloswag420blazeit360noscopemMmMmMonsterKill", &opencl_yoloswag420blazeit360noscopemMmMmMonsterKill[opencl_device_id_t]);
 }

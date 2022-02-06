@@ -25,6 +25,7 @@ int gpu_index;
 #include "opencl.h"
 #endif // GPU
 
+
 typedef struct{
     int classes;
     char **names;

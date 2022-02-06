@@ -19,7 +19,14 @@ void avgpool_kernel_init(void)
         opencl_backward_avgpool_layer_kernel = (cl_kernel*)calloc(opencl_device_ct_t, sizeof(cl_kernel));
     }
 
-    opencl_load_buffer(avgpool_layer_kernel_source, strlen(avgpool_layer_kernel_source), &opencl_avgpool_layer_kernel_program[opencl_device_id_t]);
+    char save_path[100];
+    strcpy(save_path, cl_binary_dir);
+    strcat(save_path, "avgpool_layer_kernel_source.bin");
+    opencl_load_buffer_cache(
+        avgpool_layer_kernel_source, strlen(avgpool_layer_kernel_source), 
+        &opencl_avgpool_layer_kernel_program[opencl_device_id_t],
+        save_path
+    );
 
     opencl_create_kernel(&opencl_avgpool_layer_kernel_program[opencl_device_id_t], "forward_avgpool_layer_kernel", &opencl_forward_avgpool_layer_kernel[opencl_device_id_t]);
     opencl_create_kernel(&opencl_avgpool_layer_kernel_program[opencl_device_id_t], "backward_avgpool_layer_kernel", &opencl_backward_avgpool_layer_kernel[opencl_device_id_t]);

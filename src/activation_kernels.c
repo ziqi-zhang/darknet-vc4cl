@@ -19,7 +19,15 @@ void activation_kernel_init(void)
 		opencl_activate_array_kernel = (cl_kernel*)calloc(opencl_device_ct_t, sizeof(cl_kernel));
         opencl_gradient_array_kernel = (cl_kernel*)calloc(opencl_device_ct_t, sizeof(cl_kernel));
 	}
-	opencl_load_buffer(activation_kernels_source, strlen(activation_kernels_source), &opencl_activation_kernel_program[opencl_device_id_t]);
+	char save_path[100];
+    strcpy(save_path, cl_binary_dir);
+    strcat(save_path, "activation_kernels_source.bin");
+	opencl_load_buffer_cache(
+		activation_kernels_source, strlen(activation_kernels_source), 
+		&opencl_activation_kernel_program[opencl_device_id_t],
+		save_path
+	);
+
 	opencl_create_kernel(&opencl_activation_kernel_program[opencl_device_id_t],
 		"activate_array_kernel", &opencl_activate_array_kernel[opencl_device_id_t]);
     opencl_create_kernel(&opencl_activation_kernel_program[opencl_device_id_t],
